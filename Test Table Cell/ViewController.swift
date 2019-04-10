@@ -8,7 +8,14 @@
 
 import UIKit
 
-class ViewController: UITableViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+class ViewController: UITableViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, CollectionViewDelegate {
+   
+    func didTapRemoveItem() {
+        print("delegate works")
+        imagesArray.removeAll()
+        header.reloadData()
+    }
+    
     
     let cellId = "cellId"
     let collectionCellId = "CollectionCellId"
@@ -18,7 +25,7 @@ class ViewController: UITableViewController, UICollectionViewDataSource, UIColle
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        
+        cv.backgroundColor = UIColor(white: 0.95, alpha: 1)
         return cv
     }()
 
@@ -45,19 +52,28 @@ class ViewController: UITableViewController, UICollectionViewDataSource, UIColle
     
     var imagesArray = [UIImage]() // empty array
     
+    let addButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.backgroundColor = .white
+        button.setTitle("Select Photo", for: .normal)
+        button.titleLabel?.numberOfLines = 2
+        button.titleLabel?.textAlignment = .center
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
+        button.setTitleColor(.black, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 20
+        button.widthAnchor.constraint(equalToConstant: 90).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 130).isActive = true
+        button.addTarget(self, action: #selector(handleSelectPhoto), for: .touchUpInside)
+        return button
+    }()
+    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let collectionViewHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: headerId, for: indexPath)
-        let button = UIButton(type: .system)
-        button.backgroundColor = .yellow
-        button.setTitle("+", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .heavy)
-        collectionViewHeader.addSubview(button)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.centerXAnchor.constraint(equalTo: collectionViewHeader.centerXAnchor).isActive = true
-        button.centerYAnchor.constraint(equalTo: collectionViewHeader.centerYAnchor).isActive = true
-        button.widthAnchor.constraint(equalToConstant: 75).isActive = true
-        button.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        button.addTarget(self, action: #selector(handleSelectPhoto), for: .touchUpInside)
+        
+        collectionViewHeader.addSubview(addButton)
+        addButton.centerXAnchor.constraint(equalTo: collectionViewHeader.centerXAnchor).isActive = true
+        addButton.centerYAnchor.constraint(equalTo: collectionViewHeader.centerYAnchor).isActive = true
 //        collectionViewHeader.backgroundColor = .blue
         return collectionViewHeader
     }
@@ -74,7 +90,7 @@ class ViewController: UITableViewController, UICollectionViewDataSource, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return .init(width: 75, height: 200)
+        return .init(width: 100, height: 200)
     }
     
     //////
@@ -88,8 +104,11 @@ class ViewController: UITableViewController, UICollectionViewDataSource, UIColle
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: collectionCellId, for: indexPath) as! CustomCollectionViewCell
 ////        cell.backgroundColor = .red
             cell.imageView.image = imagesArray[indexPath.row]
+            cell.delegate = self
         return cell
     }
+    
+    
     
     ////
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -135,32 +154,7 @@ class CustomHeader: UICollectionViewCell {
     
 }
 
-class CustomCollectionViewCell: UICollectionViewCell {
-    
-    let imageView: UIImageView = {
-        let iv = UIImageView()
-        iv.backgroundColor = .blue
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        return iv
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
 
-        backgroundColor = .green
-        
-        addSubview(imageView)
-        imageView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
-        imageView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        imageView.widthAnchor.constraint(equalToConstant: 75).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
-        
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
 
 extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
